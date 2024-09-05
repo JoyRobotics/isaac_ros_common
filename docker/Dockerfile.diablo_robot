@@ -1,0 +1,70 @@
+# Copyright (c) 2023-2024, JOY CORPORATION.  All rights reserved.
+#
+# JOY CORPORATION and its licensors retain all intellectual property
+# and proprietary rights in and to this software, related documentation
+# and any modifications thereto.  Any use, reproduction, disclosure or
+# distribution of this software and related documentation without an express
+# license agreement from JOY CORPORATION is strictly prohibited.
+
+ARG BASE_IMAGE
+FROM $BASE_IMAGE
+
+# Set Proxy
+
+ENV HTTP_PROXY=http://10.10.10.86:10080
+ENV HTTPS_PROXY=http://10.10.10.86:10080
+
+RUN echo 'Acquire::http::Proxy "http://10.10.10.86:10080";' >> /etc/apt/apt.conf.d/01proxy && \
+    echo 'Acquire::https::Proxy "http://10.10.10.86:10080";' >> /etc/apt/apt.conf.d/01proxy
+
+RUN echo "use_proxy = on" >> /etc/wgetrc && \
+    echo "http_proxy = http://10.10.10.86:10080" >> /etc/wgetrc && \
+    echo "https_proxy = http://10.10.10.86:10080" >> /etc/wgetrc
+
+
+# disable terminal interaction for apt
+ENV DEBIAN_FRONTEND=noninteractive
+ENV SHELL /bin/bash
+SHELL ["/bin/bash", "-c"]
+
+# Env setup
+ENV SDK_ROOT=/opt/sdk
+ENV DIABLO_ROOT=/workspaces/isaac_ros-dev/src/diablo_robot
+
+# install cmake、colcon etc.
+RUN --mount=type=cache,target=/var/cache/apt \
+apt-get update && apt-get install -y \
+        cmake \
+        pkg-config \
+        swig \
+        ros-humble-robot-localization \
+        tmux
+
+# Build YDLidar-SDK 
+RUN --mount=type=cache,target=/var/cache/apt \
+mkdir -p ${SDK_ROOT} && cd ${SDK_ROOT} \
+&& git clone https://github.com/YDLIDAR/YDLidar-SDK.git && cd YDLidar-SDK && mkdir -p build && cd build \
+&& cmake .. \
+&& make \
+&& make install
+
+# Install redis
+RUN python3 -m pip install -U \
+        redis
+
+# other
+RUN echo "source $DIABLO_ROOT/install/setup.bash" >> /home/admin/.bashrc \
+&& echo "set -g mouse on" >> /home/admin/.tmux.conf \
+&& echo "sudo chmod 666 /dev/ttyTH*" >> /home/admin/.bashrc \
+&& echo "sudo chmod 666 /dev/ttyUS*" >> /home/admin/.bashrc \
+# unset proxy
+RUN unset HTTP_PROXY HTTPS_PROXY
+
+ENV HTTP_PROXY=""
+ENV HTTPS_PROXY=""
+
+RUN rm /etc/apt/apt.conf.d/01proxy
+
+RUN sed -i '/http_proxy/d' /etc/wgetrc && \
+    sed -i '/https_proxy/d' /etc/wgetrc && \
+    sed -i '/use_proxy/d' /etc/wgetrc
