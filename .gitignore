@@ -3,3 +3,8 @@
 
 # Ignore config files
 .isaac_ros_common-config
+
+# idea pycharm
+.idea
+
+.vscode
