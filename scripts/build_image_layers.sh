@@ -276,8 +276,8 @@ fi
 
 # Arguments for docker build
 BUILD_ARGS+=("--build-arg" "USERNAME="admin"")
-BUILD_ARGS+=("--build-arg" "USER_UID=`id -u`")
-BUILD_ARGS+=("--build-arg" "USER_GID=`id -g`")
+BUILD_ARGS+=("--build-arg" "USER_UID=1000")
+BUILD_ARGS+=("--build-arg" "USER_GID=1000")
 BUILD_ARGS+=("--build-arg" "PLATFORM=$PLATFORM")
 
 for BUILD_ARG in ${ADDITIONAL_BUILD_ARGS[@]}

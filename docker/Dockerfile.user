@@ -9,10 +9,24 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
+# Set Proxy
+
+ENV HTTP_PROXY=http://10.10.10.86:10080
+ENV HTTPS_PROXY=http://10.10.10.86:10080
+
+RUN echo 'Acquire::http::Proxy "http://10.10.10.86:10080";' >> /etc/apt/apt.conf.d/01proxy && \
+    echo 'Acquire::https::Proxy "http://10.10.10.86:10080";' >> /etc/apt/apt.conf.d/01proxy
+
+RUN echo "use_proxy = on" >> /etc/wgetrc && \
+    echo "http_proxy = http://10.10.10.86:10080" >> /etc/wgetrc && \
+    echo "https_proxy = http://10.10.10.86:10080" >> /etc/wgetrc
+
+
 # Setup non-root admin user
 ARG USERNAME=admin
 ARG USER_UID=1000
 ARG USER_GID=1000
+
 
 # Install prerequisites
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -55,7 +69,19 @@ ENV USER_GID=${USER_GID}
 ENV USER_UID=${USER_UID}
 
 # Switch to non-root user and return to root
-USER ${USERNAME}
+#USER ${USERNAME}
 RUN --mount=type=cache,target=/var/cache/apt \
     rosdep update
 USER root
+
+# unset proxy
+RUN unset HTTP_PROXY HTTPS_PROXY
+
+ENV HTTP_PROXY=""
+ENV HTTPS_PROXY=""
+
+RUN rm /etc/apt/apt.conf.d/01proxy
+
+RUN sed -i '/http_proxy/d' /etc/wgetrc && \
+    sed -i '/https_proxy/d' /etc/wgetrc && \
+    sed -i '/use_proxy/d' /etc/wgetrc
