@@ -44,7 +44,8 @@ fi
 ISAAC_ROS_DEV_DIR="${ISAAC_ROS_WS}"
 SKIP_IMAGE_BUILD=0
 VERBOSE=0
-VALID_ARGS=$(getopt -o hvd:i:ba: --long help,verbose,isaac_ros_dev_dir:,image_key_suffix:,skip_image_build,docker_arg: -- "$@")
+DOCKER_SUFFIX=""
+VALID_ARGS=$(getopt -o hvd:i:ba:s: --long help,verbose,isaac_ros_dev_dir:,image_key_suffix:,skip_image_build,docker_arg:docker_suffix: -- "$@")
 eval set -- "$VALID_ARGS"
 while [ : ]; do
   case "$1" in
@@ -59,6 +60,10 @@ while [ : ]; do
     -b | --skip_image_build)
         SKIP_IMAGE_BUILD=1
         shift
+        ;;
+    -s | --docker_suffix)
+        DOCKER_SUFFIX="$2"
+        shift 2
         ;;
     -a | --docker_arg)
         DOCKER_ARGS+=("$2")
@@ -183,6 +188,9 @@ fi
 BASE_NAME="isaac_ros_dev-$PLATFORM"
 if [[ ! -z "$CONFIG_CONTAINER_NAME_SUFFIX" ]] ; then
     BASE_NAME="$BASE_NAME-$CONFIG_CONTAINER_NAME_SUFFIX"
+fi
+if [[ ! -z "$DOCKER_SUFFIX" ]];then
+    BASE_NAME="$BASE_NAME.$DOCKER_SUFFIX"
 fi
 CONTAINER_NAME="$BASE_NAME-container"
 

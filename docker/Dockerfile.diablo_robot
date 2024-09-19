@@ -39,9 +39,11 @@ apt-get update && apt-get install -y \
         swig \
         ros-humble-robot-localization \
         tmux \
+        supervisor \
         ros-humble-isaac-ros-nvblox && \
         rosdep update && \
         rosdep install isaac_ros_nvblox
+
 
 
 # Build YDLidar-SDK 
@@ -58,9 +60,14 @@ RUN python3 -m pip install -U \
 
 # other
 RUN echo "source $DIABLO_ROOT/install/setup.bash" >> /home/admin/.bashrc \
+&& echo "source /workspaces/isaac_ros-dev/install/setup.bash" >> /home/admin/.bashrc \
 && echo "set -g mouse on" >> /home/admin/.tmux.conf \
 && echo "sudo chmod 666 /dev/ttyTH*" >> /home/admin/.bashrc \
 && echo "sudo chmod 666 /dev/ttyUS*" >> /home/admin/.bashrc
+
+# supervisor
+COPY scripts/*entrypoint.sh /usr/local/bin/scripts/
+RUN  chmod +x /usr/local/bin/scripts/*.sh
 
 # unset proxy
 RUN unset HTTP_PROXY HTTPS_PROXY

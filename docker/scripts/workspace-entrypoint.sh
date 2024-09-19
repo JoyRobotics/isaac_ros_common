@@ -12,6 +12,12 @@
 echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 source /opt/ros/${ROS_DISTRO}/setup.bash
 
+# supervisor
+for file in /opt/deploy/diablo_robot/config/supervisor/*; do
+  sudo ln -s "$file" /etc/supervisor/conf.d/
+done
+sudo supervisord -c /etc/supervisor/supervisord.conf
+
 # Restart udev daemon
 sudo service udev restart
 
