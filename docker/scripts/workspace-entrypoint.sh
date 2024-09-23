@@ -36,7 +36,7 @@ sleep 2
 # 发送命令到各个面板
 tmux send-keys -t dia_log:0.0 'tail -f /var/log/diablo_robot/1_diablo_ctrl_node.log' C-m
 tmux send-keys -t dia_log:0.1 'tail -f /var/log/diablo_robot/2_diablo_driver.log' C-m
-tmux send-keys -t dia_log:0.2 'tail -f /var/log/diablo_robot/3_diablo_nav2_bringup.log' C-mm
+tmux send-keys -t dia_log:0.2 'tail -f /var/log/diablo_robot/3_diablo_nav2_bringup.log' C-m
 tmux send-keys -t dia_log:0.3 'tail -f /var/log/diablo_robot/4_navigation_sub.log' C-m
 tmux send-keys -t dia_log:0.4 'tail -f /var/log/diablo_robot/5_motion_cmd.log' C-m
 tmux send-keys -t dia_log:0.5 'sudo supervisorctl' C-m
