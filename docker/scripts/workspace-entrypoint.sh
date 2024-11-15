@@ -8,9 +8,16 @@
 # distribution of this software and related documentation without an express
 # license agreement from NVIDIA CORPORATION is strictly prohibited.
 
-# Build ROS dependency
+# Build ROS dependency & diablo_robot dependency
 echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
-source /opt/ros/${ROS_DISTRO}/setup.bash
+echo "source ${ISAAC_ROS_WS}/install/setup.bash" >> ~/.bashrc
+echo "source ${DIABLO_ROOT}/install/setup.bash" >> ~/.bashrc
+echo "source /opt/deploy/joy_robot/install/setup.bash" >> ~/.bashrc
+echo "sudo chmod 666 /dev/ttyTH*" >> ~/.bashrc
+echo "sudo chmod 666 /dev/ttyUS*" >> ~/.bashrc
+echo "set -g mouse on" >> ~/.tmux.conf
+
+source ~/.bashrc
 
 # supervisor
 for file in /opt/deploy/diablo_robot/config/supervisor/*; do

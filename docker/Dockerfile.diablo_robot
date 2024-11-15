@@ -10,16 +10,17 @@ ARG BASE_IMAGE
 FROM $BASE_IMAGE
 
 # Set Proxy
-ENV VPN_DOMAIN=10.10.10.86:10080
+# ENV VPN_DOMAIN=10.10.10.86:10080
+ENV VPN_DOMAIN=10.10.10.174:7897
 ENV HTTP_PROXY=http://${VPN_DOMAIN}
 ENV HTTPS_PROXY=http://${VPN_DOMAIN}
 
-RUN echo 'Acquire::http::Proxy "http://10.10.10.86:10080";' >> /etc/apt/apt.conf.d/01proxy && \
-    echo 'Acquire::https::Proxy "http://10.10.10.86:10080";' >> /etc/apt/apt.conf.d/01proxy
+RUN echo 'Acquire::http::Proxy "http://10.10.10.174:7897";' >> /etc/apt/apt.conf.d/01proxy && \
+    echo 'Acquire::https::Proxy "http://10.10.10.174:7897";' >> /etc/apt/apt.conf.d/01proxy
 
 RUN echo "use_proxy = on" >> /etc/wgetrc && \
-    echo "http_proxy = http://10.10.10.86:10080" >> /etc/wgetrc && \
-    echo "https_proxy = http://10.10.10.86:10080" >> /etc/wgetrc
+    echo "http_proxy = http://10.10.10.174:7897" >> /etc/wgetrc && \
+    echo "https_proxy = http://10.10.10.174:7897" >> /etc/wgetrc
 
 
 # disable terminal interaction for apt
@@ -30,6 +31,9 @@ SHELL ["/bin/bash", "-c"]
 # Env setup
 ENV SDK_ROOT=/opt/sdk
 ENV DIABLO_ROOT=/opt/deploy/diablo_robot
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV ROS_LOG_DIR=/tmp/.ros/log
+ENV CYCLONEDDS_URI=${DIABLO_ROOT}/config/params/dds.xml
 
 # install cmake、colcon etc.
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -58,14 +62,7 @@ mkdir -p ${SDK_ROOT} && cd ${SDK_ROOT} \
 RUN python3 -m pip install -U \
         redis
 
-# other
-RUN echo "source $DIABLO_ROOT/install/setup.bash" >> /home/admin/.bashrc \
-&& echo "source /workspaces/isaac_ros-dev/install/setup.bash" >> /home/admin/.bashrc \
-&& echo "set -g mouse on" >> /home/admin/.tmux.conf \
-&& echo "sudo chmod 666 /dev/ttyTH*" >> /home/admin/.bashrc \
-&& echo "sudo chmod 666 /dev/ttyUS*" >> /home/admin/.bashrc
-
-# supervisor
+# source dependency & supervisor 
 COPY scripts/*entrypoint.sh /usr/local/bin/scripts/
 RUN  chmod +x /usr/local/bin/scripts/*.sh
 
