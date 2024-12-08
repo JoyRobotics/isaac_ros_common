@@ -11,16 +11,16 @@ FROM $BASE_IMAGE
 
 # Set Proxy
 # ENV VPN_DOMAIN=10.10.10.86:10080
-ENV VPN_DOMAIN=10.10.10.174:7897
+ENV VPN_DOMAIN=10.10.10.176:7897
 ENV HTTP_PROXY=http://${VPN_DOMAIN}
 ENV HTTPS_PROXY=http://${VPN_DOMAIN}
 
-RUN echo 'Acquire::http::Proxy "http://10.10.10.174:7897";' >> /etc/apt/apt.conf.d/01proxy && \
-    echo 'Acquire::https::Proxy "http://10.10.10.174:7897";' >> /etc/apt/apt.conf.d/01proxy
+RUN echo 'Acquire::http::Proxy "http://10.10.10.176:7897";' >> /etc/apt/apt.conf.d/01proxy && \
+    echo 'Acquire::https::Proxy "http://10.10.10.176:7897";' >> /etc/apt/apt.conf.d/01proxy
 
 RUN echo "use_proxy = on" >> /etc/wgetrc && \
-    echo "http_proxy = http://10.10.10.174:7897" >> /etc/wgetrc && \
-    echo "https_proxy = http://10.10.10.174:7897" >> /etc/wgetrc
+    echo "http_proxy = http://10.10.10.176:7897" >> /etc/wgetrc && \
+    echo "https_proxy = http://10.10.10.176:7897" >> /etc/wgetrc
 
 
 # disable terminal interaction for apt
@@ -44,11 +44,11 @@ apt-get update && apt-get install -y \
         ros-humble-robot-localization \
         tmux \
         supervisor \
-        ros-humble-isaac-ros-nvblox && \
+        ros-humble-isaac-ros-nvblox \
+        tensorrt-libs \
+        python3-libnvinfer-dev && \
         rosdep update && \
         rosdep install isaac_ros_nvblox
-
-
 
 # Build YDLidar-SDK 
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -58,9 +58,17 @@ mkdir -p ${SDK_ROOT} && cd ${SDK_ROOT} \
 && make \
 && make install
 
-# Install redis
+# Install redis & vison requirements
 RUN python3 -m pip install -U \
-        redis
+        redis \
+        pretrainedmodels \
+        timm \
+        lap \
+        ultralytics==8.2.18 \
+        lancedb \
+        aiomysql \
+        numpy==1.26.4
+
 
 # source dependency & supervisor 
 COPY scripts/*entrypoint.sh /usr/local/bin/scripts/
