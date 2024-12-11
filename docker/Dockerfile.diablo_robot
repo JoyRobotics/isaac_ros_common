@@ -31,9 +31,7 @@ SHELL ["/bin/bash", "-c"]
 # Env setup
 ENV SDK_ROOT=/opt/sdk
 ENV DIABLO_ROOT=/opt/deploy/diablo_robot
-ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV ROS_LOG_DIR=/tmp/.ros/log
-ENV CYCLONEDDS_URI=${DIABLO_ROOT}/config/params/dds.xml
 
 # install cmake、colcon etc.
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -73,6 +71,13 @@ RUN python3 -m pip install -U \
 # source dependency & supervisor 
 COPY scripts/*entrypoint.sh /usr/local/bin/scripts/
 RUN  chmod +x /usr/local/bin/scripts/*.sh
+
+# Copy middleware profiles
+RUN mkdir -p /usr/local/share/middleware_profiles
+COPY middleware_profiles/*profile.xml /usr/local/share/middleware_profiles/
+
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV CYCLONEDDS_URI=/usr/local/share/middleware_profiles/cyclonedds_profile.xml
 
 # unset proxy
 RUN unset HTTP_PROXY HTTPS_PROXY
