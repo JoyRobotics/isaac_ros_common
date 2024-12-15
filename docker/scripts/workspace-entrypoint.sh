@@ -23,7 +23,7 @@ source ~/.bashrc
 for file in /opt/deploy/diablo_robot/config/supervisor/*; do
   sudo ln -s "$file" /etc/supervisor/conf.d/
 done
-sudo supervisord -c /etc/supervisor/supervisord.conf
+#sudo supervisord -c /etc/supervisor/supervisord.conf
 
 # start log tmux
 tmux new-session -d -s dia_log
