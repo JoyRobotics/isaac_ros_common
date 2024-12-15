@@ -30,7 +30,6 @@ SHELL ["/bin/bash", "-c"]
 
 # Env setup
 ENV SDK_ROOT=/opt/sdk
-ENV DIABLO_ROOT=/opt/deploy/diablo_robot
 ENV ROS_LOG_DIR=/tmp/.ros/log
 
 # install cmake、colcon etc.
